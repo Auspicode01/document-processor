@@ -18,16 +18,15 @@ public class SearchLine {
         }
         String line = "";
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
-            int keywordLine = findKeywordLine(reader, text, keyword);
+            int keywordLine = findKeywordLine(reader, keyword);
             if (offset > 0) {
-                line = findByAmountOfLines(reader, text, offset);
+                line = findByAmountOfLines(reader, offset);
             } else {
                 reader.reset();
-                line = findByAmountOfLines(reader, text, keywordLine + offset);
+                line = findByAmountOfLines(reader,keywordLine + offset);
             }
-            reader.close();
         } catch (IOException e) {
-            System.out.println(e.toString());
+            System.out.println(e.getMessage());
         }
         if (line == null) {
             throw new LineOutOfReachException(LINE_OUT_OF_REACH);
@@ -35,14 +34,14 @@ public class SearchLine {
         return line;
     }
 
-    private static String findByAmountOfLines(BufferedReader reader, String text, int amountOfLines) throws IOException {
+    private static String findByAmountOfLines(BufferedReader reader, int amountOfLines) throws IOException {
         for (int i = 1; i < amountOfLines; i++) {
             reader.readLine();
         }
         return reader.readLine();
     }
 
-    private static int findKeywordLine(BufferedReader reader, String text, String keyword) throws IOException {
+    private static int findKeywordLine(BufferedReader reader, String keyword) throws IOException {
         int numberOfLinesRead = 1;
         String line = "";
         reader.mark(1);
@@ -51,7 +50,7 @@ public class SearchLine {
             line = reader.readLine();
             numberOfLinesRead++;
         }
-        if (null == line) {
+        if ((String) null == line) {
             throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
         }
         return numberOfLinesRead;
@@ -65,14 +64,11 @@ public class SearchLine {
                 line = reader.readLine();
             }
         } catch (IOException e) {
-            System.out.println(e.toString());
+            System.out.println(e.getMessage());
         }
-        try {
-            line.contains(keyword);
-        } catch (NullPointerException e) {
+        if (line.contains(keyword)) {
             throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
         }
         return line;
     }
-
 }

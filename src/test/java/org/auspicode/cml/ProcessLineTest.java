@@ -1,19 +1,85 @@
 package org.auspicode.cml;
 
+import org.auspicode.cml.exception.WordOutOfReachException;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.auspicode.cml.exception.ErrorMessages.WORD_OUT_OF_REACH;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ProcessLineTest {
 
     @ParameterizedTest
     @CsvSource(value = {"this monday is a beautiful day:0", "this is why I don't like monday:5", "I want to do this, is monday ok for you?:2"}, delimiter = ':')
-    void whenExtractValueAfterKeyword_ReturnKeyword(String line, int index) {
+    void whenExtractValueAfterKeyword_ReturnValue(String line, int index) {
         String keyword = "this";
         String value = "monday";
         String result = ProcessLine.extractValueAfterKeyword(line, keyword, index);
         assertThat(result).isEqualTo(value);
     }
 
+    @ParameterizedTest
+    @CsvSource(value = {"this monday is a beautiful day:1", "this is why I don't like monday:6", "I want to do this, is monday ok for you?:6"}, delimiter = ':')
+    void whenExtractValue_ReturnValue(String line, int index) {
+        String value = "monday";
+        String result = ProcessLine.extractValue(line, index);
+        assertThat(result).isEqualTo(value);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"this monday is a beautiful day:120", "this is why I don't like monday:610", "I want to do this , is monday ok for you:764"}, delimiter = ':')
+    void whenExtractSeveralValues_ReturnValues(String line, String index) {
+        String value = "monday is this";
+        String[] indexArr = index.split("");
+        int[] n = new int[3];
+        for (int i = 0; i < 3; i++) {
+            n[i] = Integer.parseInt(indexArr[i]);
+        }
+        String result = ProcessLine.extractSeveralValues(line, n);
+        assertThat(result).isEqualTo(value);
+    }
+
+    @Test
+    void whenExtractValueOutOfReach_ReturnWordOutOfReachException() {
+        String line = "this monday is a beautiful day";
+        WordOutOfReachException wordOutOfReachException = assertThrows(WordOutOfReachException.class, () -> ProcessLine.extractValue(line, line.split("").length + 1));
+        assertThat(wordOutOfReachException.getMessage()).isEqualTo(WORD_OUT_OF_REACH);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"the price is 12,99€:12.99", "1.732 is my height:1.732", "The field is 45,76 meters long:45.76"}, delimiter = ':')
+    void whenExtractAmount_ReturnAmount(String line, Double expectedResult) {
+        Double actualResult = ProcessLine.extractAmount(line);
+        assertThat(actualResult).isEqualTo(expectedResult);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"he began exercising at 12-04-3002:dd-MM-yyyy:1:4", "my school work is due on 06/11/1943:MM/dd/yyyy:1:6", "we broke up on 01-04-21:MM-dd-yy:1:1", "from 30-08-2020 to 06-10-2021 I was happy:dd-MM-yyyy:2:10"}, delimiter = ':')
+    void whenExtractMonth_ReturnMonth(String line, String dateFormat, int iterations, int expectedResult) {
+        Month expectedMonth = Month.of(expectedResult);
+        Month actualResult = ProcessLine.extractMonth(line, dateFormat, iterations);
+        assertThat(actualResult).isEqualTo(expectedMonth);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"he began exercising at 12-04-3002:dd-MM-yyyy:1:3002", "my school work is due on 06/11/1943:MM/dd/yyyy:1:1943", "we broke up on 01-04-21:MM-dd-yy:1:2021", "from 30-08-2020 to 06-10-2021 I was happy:dd-MM-yyyy:2:2021"}, delimiter = ':')
+    void whenExtractYear_ReturnYear(String line, String dateFormat, int iterations, int expectedResult) {
+        Year expectedMonth = Year.of(expectedResult);
+        Year actualResult = ProcessLine.extractYear(line, dateFormat, iterations);
+        assertThat(actualResult).isEqualTo(expectedMonth);
+    }
+
+    @ParameterizedTest
+    @CsvSource(value = {"he began exercising at 12-04-3002:dd-MM-yyyy:1:12:4:3002", "my school work is due on 06/11/1943:MM/dd/yyyy:1:11:6:1943", "we broke up on 01-04-21:MM-dd-yy:1:4:1:2021", "from 30-08-2020 to 06-10-2021 I was happy:dd-MM-yyyy:2:6:10:2021"}, delimiter = ':')
+    void whenExtractYear_ReturnYear(String line, String dateFormat, int iterations, int expectedDay, int expectedMonth, int expectedYear) {
+        LocalDate expectedDate = LocalDate.of(expectedYear, expectedMonth, expectedDay);
+        LocalDate actualResult = ProcessLine.extractDate(line, dateFormat, iterations);
+        assertThat(actualResult).isEqualTo(expectedDate);
+    }
 }

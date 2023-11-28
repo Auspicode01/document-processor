@@ -7,4 +7,6 @@ public class ErrorMessages {
     public static final String OFFSET_IS_ZERO = "Offset parameter can't be 0";
 
     public static final String LINE_OUT_OF_REACH = "Line out of reach";
+
+    public static final String WORD_OUT_OF_REACH = "Word out of reach";
 }
