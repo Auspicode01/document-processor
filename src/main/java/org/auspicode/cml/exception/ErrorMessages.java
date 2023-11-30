@@ -1,5 +1,8 @@
 package org.auspicode.cml.exception;
 
+import lombok.Generated;
+
+@Generated
 public class ErrorMessages {
 
     public static final String KEYWORD_NOT_FOUND = "Keyword you're looking for is not present in this file";

@@ -1,5 +1,6 @@
 package org.auspicode.cml;
 
+import lombok.NonNull;
 import org.auspicode.cml.exception.WordOutOfReachException;
 
 import java.text.ParseException;
@@ -17,34 +18,25 @@ import static org.auspicode.cml.exception.ErrorMessages.WORD_OUT_OF_REACH;
 
 public class ProcessLine {
 
-    public static String extractValueAfterKeyword(String line, String keyword, int index) {
-        if (line == null) {
-            return null;
-        }
+    public static String extractValueAfterKeyword(@NonNull String line, String keyword, int index) {
         String[] lineAfterKeyword = line.split(keyword);
-        String[] splitedLine = lineAfterKeyword[1].trim().split(" ");
-        checkWordReach(splitedLine, index);
-        return splitedLine[index].trim();
+        String[] splitLine = lineAfterKeyword[1].trim().split(" ");
+        checkWordReach(splitLine, index);
+        return splitLine[index].trim();
     }
 
-    public static String extractValue(String line, int index) {
-        if (line == null) {
-            return null;
-        }
-        String[] splitedLine = line.trim().split(" ");
-        checkWordReach(splitedLine, index);
-        return splitedLine[index].trim();
+    public static String extractValue(@NonNull String line, int index) {
+        String[] splitLine = line.trim().split(" ");
+        checkWordReach(splitLine, index);
+        return splitLine[index].trim();
     }
 
-    public static String extractSeveralValues(String line, int... index) {
-        if (line == null) {
-            return null;
-        }
+    public static String extractSeveralValues(@NonNull String line, int... index) {
         String result = "";
-        String[] splitedLine = line.trim().split(" ");
+        String[] splitLine = line.trim().split(" ");
         for (int n : index) {
-            checkWordReach(splitedLine, n);
-            result = result.concat(splitedLine[n].trim()).concat(" ");
+            checkWordReach(splitLine, n);
+            result = result.concat(splitLine[n].trim()).concat(" ");
         }
         return result.trim();
     }
@@ -55,10 +47,7 @@ public class ProcessLine {
         }
     }
 
-    public static Double extractAmount(String line) {
-        if (line == null) {
-            return null;
-        }
+    public static Double extractAmount(@NonNull String line) {
         String result = "";
         Pattern pattern = Pattern.compile(Constants.EXTRACT_AMOUNT_REGEX_PATTERN);
         Matcher matcher = pattern.matcher(line);
@@ -81,10 +70,7 @@ public class ProcessLine {
         return LocalDate.ofInstant(extractCalendar(line, dateFormat, iterations).toInstant(), ZoneId.systemDefault());
     }
 
-    private static Calendar extractCalendar(String line, String dateFormat, int iterations) {
-        if (line == null) {
-            return null;
-        }
+    private static Calendar extractCalendar(@NonNull String line, String dateFormat, int iterations) {
         Pattern pattern = Pattern.compile(Constants.EXTRACT_DATE_REGEX_PATTERN);
         Matcher matcher = pattern.matcher(line);
         for (int i = 0; i < iterations; i++) {

@@ -77,7 +77,7 @@ class ProcessLineTest {
 
     @ParameterizedTest
     @CsvSource(value = {"he began exercising at 12-04-3002:dd-MM-yyyy:1:12:4:3002", "my school work is due on 06/11/1943:MM/dd/yyyy:1:11:6:1943", "we broke up on 01-04-21:MM-dd-yy:1:4:1:2021", "from 30-08-2020 to 06-10-2021 I was happy:dd-MM-yyyy:2:6:10:2021"}, delimiter = ':')
-    void whenExtractYear_ReturnYear(String line, String dateFormat, int iterations, int expectedDay, int expectedMonth, int expectedYear) {
+    void whenExtractDate_ReturnDate(String line, String dateFormat, int iterations, int expectedDay, int expectedMonth, int expectedYear) {
         LocalDate expectedDate = LocalDate.of(expectedYear, expectedMonth, expectedDay);
         LocalDate actualResult = ProcessLine.extractDate(line, dateFormat, iterations);
         assertThat(actualResult).isEqualTo(expectedDate);

@@ -23,7 +23,7 @@ public class SearchLine {
                 line = findByAmountOfLines(reader, offset);
             } else {
                 reader.reset();
-                line = findByAmountOfLines(reader,keywordLine + offset);
+                line = findByAmountOfLines(reader, keywordLine + offset);
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -49,9 +49,9 @@ public class SearchLine {
         while (!line.contains(keyword)) {
             line = reader.readLine();
             numberOfLinesRead++;
-        }
-        if ((String) null == line) {
-            throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
+            if (line == null) {
+                throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
+            }
         }
         return numberOfLinesRead;
     }
@@ -62,12 +62,12 @@ public class SearchLine {
             line = reader.readLine();
             while (!line.contains(keyword)) {
                 line = reader.readLine();
+                if (line == null) {
+                    throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
+                }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
-        }
-        if (line.contains(keyword)) {
-            throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
         }
         return line;
     }
