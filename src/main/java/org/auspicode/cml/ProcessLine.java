@@ -2,6 +2,7 @@ package org.auspicode.cml;
 
 import lombok.NonNull;
 import org.auspicode.cml.exception.WordOutOfReachException;
+import org.auspicode.cml.utils.DateUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +26,25 @@ public class ProcessLine {
         return splitLine[index].trim();
     }
 
+    public static String extractAllValuesAfterKeyword(@NonNull String line, String keyword) {
+        String result = "";
+        String[] lineAfterKeyword = line.split(keyword);
+        String[] splitLine = lineAfterKeyword[1].trim().split(" ");
+        for (String str : splitLine) {
+            result = result.concat(str.trim()).concat(" ");
+        }
+        return result.trim();
+    }
+
+    public static String extractAllValuesAfterIndex(@NonNull String line, int index) {
+        String result = "";
+        String[] splitLine = line.trim().split(" ");
+        for (int i = index + 1; i < splitLine.length; i++) {
+            result = result.concat(splitLine[i].trim()).concat(" ");
+        }
+        return result.trim();
+    }
+
     public static String extractValue(@NonNull String line, int index) {
         String[] splitLine = line.trim().split(" ");
         checkWordReach(splitLine, index);
@@ -37,6 +57,15 @@ public class ProcessLine {
         for (int n : index) {
             checkWordReach(splitLine, n);
             result = result.concat(splitLine[n].trim()).concat(" ");
+        }
+        return result.trim();
+    }
+
+    public static String excludeLastValue(@NonNull String line) {
+        String result = "";
+        String[] splitLine = line.trim().split(" ");
+        for (int i = 0; i < splitLine.length - 1; i++) {
+            result = result.concat(splitLine[i].trim()).concat(" ");
         }
         return result.trim();
     }
@@ -71,7 +100,7 @@ public class ProcessLine {
     }
 
     private static Calendar extractCalendar(@NonNull String line, String dateFormat, int iterations) {
-        Pattern pattern = Pattern.compile(Constants.EXTRACT_DATE_REGEX_PATTERN);
+        Pattern pattern = Pattern.compile(DateUtils.createDateRegexPattern(dateFormat));
         Matcher matcher = pattern.matcher(line);
         for (int i = 0; i < iterations; i++) {
             matcher.find();
