@@ -1,5 +1,7 @@
 package org.auspicode.cml;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.auspicode.cml.exception.KeywordNotFoundException;
 import org.auspicode.cml.exception.LineOutOfReachException;
 import org.auspicode.cml.exception.OffsetIsZeroException;
@@ -10,6 +12,7 @@ import java.io.StringReader;
 
 import static org.auspicode.cml.exception.ErrorMessages.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchLine {
 
     public static String withOffset(String text, String keyword, int offset) {

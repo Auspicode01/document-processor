@@ -1,5 +1,7 @@
 package org.auspicode.cml;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.auspicode.cml.exception.WordOutOfReachException;
 import org.auspicode.cml.utils.DateUtils;
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
 
 import static org.auspicode.cml.exception.ErrorMessages.WORD_OUT_OF_REACH;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProcessLine {
 
     public static String extractValueAfterKeyword(@NonNull String line, String keyword, int index) {

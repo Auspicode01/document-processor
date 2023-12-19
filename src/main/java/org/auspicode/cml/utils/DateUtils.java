@@ -1,5 +1,9 @@
 package org.auspicode.cml.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class DateUtils {
 
     private static final String DELIMITER = "[^\\w\\d\\r\\n:]";
@@ -14,11 +18,11 @@ public class DateUtils {
 
     public static String createDateRegexPattern(String dateFormat) {
         if (dateFormat.startsWith("dd")) {
-            return BOUNDARY_TAG.concat(DAY_VALUES).concat(DELIMITER).concat(MONTH_VALUES).concat(DELIMITER).concat(YEAR_VALUES);
+            return BOUNDARY_TAG.concat(DAY_VALUES).concat(DELIMITER).concat(MONTH_VALUES).concat(DELIMITER).concat(YEAR_VALUES).concat(BOUNDARY_TAG);
         } else if (dateFormat.startsWith("yy")) {
             return BOUNDARY_TAG.concat(YEAR_VALUES).concat(DELIMITER).concat(MONTH_VALUES).concat(DELIMITER).concat(DAY_VALUES).concat(BOUNDARY_TAG);
         } else {
-            return BOUNDARY_TAG.concat(MONTH_VALUES).concat(DELIMITER).concat(DAY_VALUES).concat(DELIMITER).concat(YEAR_VALUES);
+            return BOUNDARY_TAG.concat(MONTH_VALUES).concat(DELIMITER).concat(DAY_VALUES).concat(DELIMITER).concat(YEAR_VALUES).concat(BOUNDARY_TAG);
         }
     }
 }
