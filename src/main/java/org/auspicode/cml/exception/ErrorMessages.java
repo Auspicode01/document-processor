@@ -1,8 +1,11 @@
 package org.auspicode.cml.exception;
 
+import lombok.AccessLevel;
 import lombok.Generated;
+import lombok.NoArgsConstructor;
 
 @Generated
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorMessages {
 
     public static final String KEYWORD_NOT_FOUND = "Keyword you're looking for is not present in this file";

@@ -13,7 +13,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.auspicode.cml.exception.ErrorMessages.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SearchLineTest {
+class SearchLineTest {
 
     @Test
     void whenSearchWithKeyword_ReturnKeyword() throws IOException {
