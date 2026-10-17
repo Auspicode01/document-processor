@@ -40,7 +40,7 @@ public class SearchLine {
 
             int targetIndex = keywordIndex + offset;
             if (targetIndex >= 0 && targetIndex < lines.size()) {
-                return Optional.of(lines.get(targetIndex));
+                return Optional.of(lines.get(targetIndex).trim());
             }
 
             return Optional.empty();
@@ -60,7 +60,7 @@ public class SearchLine {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.contains(keyword)) {
-                    return Optional.of(line);
+                    return Optional.of(line.trim());
                 }
             }
         } catch (IOException e) {
