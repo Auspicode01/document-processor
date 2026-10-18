@@ -3,7 +3,6 @@ package org.auspicode.cml;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.auspicode.cml.exception.WordOutOfReachException;
 import org.auspicode.cml.utils.DateUtils;
 
 import java.text.ParseException;
@@ -14,54 +13,50 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.auspicode.cml.exception.ErrorMessages.WORD_OUT_OF_REACH;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProcessLine {
 
-    public static String extractValueAfterKeyword(@NonNull String line, String keyword, int index) {
+    public static Optional<String> extractValueAfterKeyword(@NonNull String line, String keyword, int index) {
         String[] lineAfterKeyword = line.split(keyword);
         String[] splitLine = lineAfterKeyword[1].trim().split(" ");
-        checkWordReach(splitLine, index);
-        return splitLine[index].trim();
+        return isWordReachable(splitLine, index) ? Optional.of(splitLine[index].trim()) : Optional.empty();
     }
 
-    public static String extractAllValuesAfterKeyword(@NonNull String line, String keyword) {
+    public static Optional<String> extractAllValuesAfterKeyword(@NonNull String line, String keyword) {
         String result = "";
         String[] lineAfterKeyword = line.split(keyword);
         String[] splitLine = lineAfterKeyword[1].trim().split(" ");
         for (String str : splitLine) {
             result = result.concat(str.trim()).concat(" ");
         }
-        return result.trim();
+        return Optional.of(result.trim());
     }
 
-    public static String extractAllValuesAfterIndex(@NonNull String line, int index) {
+    public static Optional<String> extractAllValuesAfterIndex(@NonNull String line, int index) {
         String result = "";
         String[] splitLine = line.trim().split(" ");
         for (int i = index + 1; i < splitLine.length; i++) {
             result = result.concat(splitLine[i].trim()).concat(" ");
         }
-        return result.trim();
+        return Optional.of(result.trim());
     }
 
-    public static String extractValue(@NonNull String line, int index) {
+    public static Optional<String> extractValue(@NonNull String line, int index) {
         String[] splitLine = line.trim().split(" ");
-        checkWordReach(splitLine, index);
-        return splitLine[index].trim();
+        return isWordReachable(splitLine, index) ? Optional.of(splitLine[index].trim()) : Optional.empty();
     }
 
-    public static String extractSeveralValues(@NonNull String line, int... index) {
+    public static Optional<String> extractSeveralValues(@NonNull String line, int... index) {
         String result = "";
         String[] splitLine = line.trim().split(" ");
         for (int n : index) {
-            checkWordReach(splitLine, n);
-            result = result.concat(splitLine[n].trim()).concat(" ");
+            result = isWordReachable(splitLine, n) ? result.concat(splitLine[n].trim()).concat(" ") : result;
         }
-        return result.trim();
+        return Optional.of(result.trim());
     }
 
     public static String excludeLastValue(@NonNull String line) {
@@ -73,10 +68,8 @@ public class ProcessLine {
         return result.trim();
     }
 
-    private static void checkWordReach(String[] wordArr, int n) {
-        if (n > wordArr.length) {
-            throw new WordOutOfReachException(WORD_OUT_OF_REACH);
-        }
+    private static boolean isWordReachable(String[] wordArr, int n) {
+        return n < wordArr.length;
     }
 
     public static Double extractAmount(@NonNull String line) {

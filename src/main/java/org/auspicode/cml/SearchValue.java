@@ -13,7 +13,7 @@ public class SearchValue {
         Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(text);
         while (matcher.find()) {
-            matches.add(matcher.group());
+            matches.add(matcher.group().trim());
         }
         return matches;
     }

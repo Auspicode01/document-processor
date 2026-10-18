@@ -2,76 +2,70 @@ package org.auspicode.cml;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.auspicode.cml.exception.KeywordNotFoundException;
-import org.auspicode.cml.exception.LineOutOfReachException;
+import lombok.extern.slf4j.Slf4j;
 import org.auspicode.cml.exception.OffsetIsZeroException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
+import java.util.Optional;
 
-import static org.auspicode.cml.exception.ErrorMessages.*;
+import static org.auspicode.cml.exception.ErrorMessages.OFFSET_IS_ZERO;
+import static org.auspicode.cml.exception.ErrorMessages.TEXT_KEYWORD_NOT_NULL;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SearchLine {
 
-    public static String withOffset(String text, String keyword, int offset) {
+    public static Optional<String> withOffset(String text, String keyword, int offset) {
         if (offset == 0) {
             throw new OffsetIsZeroException(OFFSET_IS_ZERO);
         }
-        String line = "";
+
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
-            int keywordLine = findKeywordLine(reader, keyword);
-            if (offset > 0) {
-                line = findByAmountOfLines(reader, offset);
-            } else {
-                reader.reset();
-                line = findByAmountOfLines(reader, keywordLine + offset);
+            List<String> lines = reader.lines().toList();
+
+            int keywordIndex = -1;
+            for (int i = 0; i < lines.size(); i++) {
+                if (lines.get(i).contains(keyword)) {
+                    keywordIndex = i;
+                    break;
+                }
             }
+
+            if (keywordIndex == -1) {
+                return Optional.empty();
+            }
+
+            int targetIndex = keywordIndex + offset;
+            if (targetIndex >= 0 && targetIndex < lines.size()) {
+                return Optional.of(lines.get(targetIndex).trim());
+            }
+
+            return Optional.empty();
+
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
+            return Optional.empty();
         }
-        if (line == null) {
-            throw new LineOutOfReachException(LINE_OUT_OF_REACH);
-        }
-        return line;
     }
 
-    private static String findByAmountOfLines(BufferedReader reader, int amountOfLines) throws IOException {
-        for (int i = 1; i < amountOfLines; i++) {
-            reader.readLine();
+    public static Optional<String> withKeyword(String text, String keyword) {
+        if (text == null || keyword == null) {
+            throw new IllegalArgumentException(TEXT_KEYWORD_NOT_NULL);
         }
-        return reader.readLine();
-    }
 
-    private static int findKeywordLine(BufferedReader reader, String keyword) throws IOException {
-        int numberOfLinesRead = 1;
-        String line = "";
-        reader.mark(1);
-        line = reader.readLine();
-        while (!line.contains(keyword)) {
-            line = reader.readLine();
-            numberOfLinesRead++;
-            if (line == null) {
-                throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
-            }
-        }
-        return numberOfLinesRead;
-    }
-
-    public static String withKeyword(String text, String keyword) {
-        String line = "";
         try (BufferedReader reader = new BufferedReader(new StringReader(text))) {
-            line = reader.readLine();
-            while (!line.contains(keyword)) {
-                line = reader.readLine();
-                if (line == null) {
-                    throw new KeywordNotFoundException(KEYWORD_NOT_FOUND);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains(keyword)) {
+                    return Optional.of(line.trim());
                 }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
-        return line;
+        return Optional.empty();
     }
 }
