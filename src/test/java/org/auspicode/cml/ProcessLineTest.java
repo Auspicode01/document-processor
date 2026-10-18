@@ -1,6 +1,5 @@
 package org.auspicode.cml;
 
-import org.auspicode.cml.exception.WordOutOfReachException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -8,10 +7,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.auspicode.cml.exception.ErrorMessages.WORD_OUT_OF_REACH;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProcessLineTest {
 
@@ -20,30 +19,38 @@ class ProcessLineTest {
     void whenExtractValueAfterKeyword_ReturnValue(String line, int index) {
         String keyword = "this";
         String value = "monday";
-        String result = ProcessLine.extractValueAfterKeyword(line, keyword, index);
-        assertThat(result).isEqualTo(value);
+        Optional<String> result = ProcessLine.extractValueAfterKeyword(line, keyword, index);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo(value);
     }
 
     @ParameterizedTest
     @CsvSource(value = {"this monday is a beautiful day:monday:is a beautiful day", "this is why I don't like monday:why:I don't like monday", "I want to do this, is monday ok for you?:I:want to do this, is monday ok for you?"}, delimiter = ':')
     void whenExtractValueAllValuesAfterKeyword_ReturnValuesAfterKeyword(String line, String keyword, String expectedResult) {
-        String result = ProcessLine.extractAllValuesAfterKeyword(line, keyword);
-        assertThat(result).isEqualTo(expectedResult);
+        Optional<String> result = ProcessLine.extractAllValuesAfterKeyword(line, keyword);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo(expectedResult);
     }
 
     @ParameterizedTest
     @CsvSource(value = {"this monday is a beautiful day:1:is a beautiful day", "this is why I don't like monday:2:I don't like monday", "I want to do this, is monday ok for you?:0:want to do this, is monday ok for you?"}, delimiter = ':')
     void whenExtractValueAllValuesAfterIndex_ReturnValuesAfterIndex(String line, int index, String expectedResult) {
-        String result = ProcessLine.extractAllValuesAfterIndex(line, index);
-        assertThat(result).isEqualTo(expectedResult);
+        Optional<String> result = ProcessLine.extractAllValuesAfterIndex(line, index);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo(expectedResult);
     }
 
     @ParameterizedTest
     @CsvSource(value = {"this monday is a beautiful day:1", "this is why I don't like monday:6", "I want to do this, is monday ok for you?:6"}, delimiter = ':')
     void whenExtractValue_ReturnValue(String line, int index) {
         String value = "monday";
-        String result = ProcessLine.extractValue(line, index);
-        assertThat(result).isEqualTo(value);
+        Optional<String> result = ProcessLine.extractValue(line, index);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo(value);
     }
 
     @ParameterizedTest
@@ -55,15 +62,18 @@ class ProcessLineTest {
         for (int i = 0; i < 3; i++) {
             n[i] = Integer.parseInt(indexArr[i]);
         }
-        String result = ProcessLine.extractSeveralValues(line, n);
-        assertThat(result).isEqualTo(value);
+        Optional<String> result = ProcessLine.extractSeveralValues(line, n);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo(value);
     }
 
     @Test
     void whenExtractValueOutOfReach_ReturnWordOutOfReachException() {
         String line = "this monday is a beautiful day";
-        WordOutOfReachException wordOutOfReachException = assertThrows(WordOutOfReachException.class, () -> ProcessLine.extractValue(line, line.split("").length + 1));
-        assertThat(wordOutOfReachException.getMessage()).isEqualTo(WORD_OUT_OF_REACH);
+        Optional<String> result = ProcessLine.extractValue(line, line.split("").length + 1);
+
+        assertTrue(result.isEmpty());
     }
 
     @ParameterizedTest
