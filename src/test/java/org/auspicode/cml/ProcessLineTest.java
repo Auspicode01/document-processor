@@ -69,7 +69,7 @@ class ProcessLineTest {
     }
 
     @Test
-    void whenExtractValueOutOfReach_ReturnWordOutOfReachException() {
+    void whenExtractValueOutOfReach_ReturnEmptyOptional() {
         String line = "this monday is a beautiful day";
         Optional<String> result = ProcessLine.extractValue(line, line.split("").length + 1);
 
@@ -79,8 +79,21 @@ class ProcessLineTest {
     @ParameterizedTest
     @CsvSource(value = {"this monday is a beautiful day:this monday is a beautiful", "this is why I don't like monday:this is why I don't like", "I want to do this, is monday ok for you?:I want to do this, is monday ok for"}, delimiter = ':')
     void whenExcludeLastValue_ReturnLineWithoutLastValue(String line, String expectedResult) {
-        String result = ProcessLine.excludeLastValue(line);
-        assertThat(result).isEqualTo(expectedResult);
+        Optional<String> result = ProcessLine.excludeLastValue(line);
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    void whenExcludeLastValueWithEmptyString_ReturnEmptyOptional() {
+        Optional<String> result = ProcessLine.excludeLastValue("");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void whenExcludeLastValueWithOneWordString_ReturnEmptyOptional() {
+        Optional<String> result = ProcessLine.excludeLastValue("OneWordString");
+        assertTrue(result.isEmpty());
     }
 
     @ParameterizedTest

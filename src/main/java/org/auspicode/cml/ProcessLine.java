@@ -21,12 +21,18 @@ import java.util.regex.Pattern;
 public class ProcessLine {
 
     public static Optional<String> extractValueAfterKeyword(@NonNull String line, String keyword, int index) {
+        if (line.isBlank()) {
+            return Optional.empty();
+        }
         String[] lineAfterKeyword = line.split(keyword);
         String[] splitLine = lineAfterKeyword[1].trim().split(" ");
         return isWordReachable(splitLine, index) ? Optional.of(splitLine[index].trim()) : Optional.empty();
     }
 
     public static Optional<String> extractAllValuesAfterKeyword(@NonNull String line, String keyword) {
+        if (line.isBlank()) {
+            return Optional.empty();
+        }
         String result = "";
         String[] lineAfterKeyword = line.split(keyword);
         String[] splitLine = lineAfterKeyword[1].trim().split(" ");
@@ -37,6 +43,9 @@ public class ProcessLine {
     }
 
     public static Optional<String> extractAllValuesAfterIndex(@NonNull String line, int index) {
+        if (line.isBlank()) {
+            return Optional.empty();
+        }
         String result = "";
         String[] splitLine = line.trim().split(" ");
         for (int i = index + 1; i < splitLine.length; i++) {
@@ -46,11 +55,17 @@ public class ProcessLine {
     }
 
     public static Optional<String> extractValue(@NonNull String line, int index) {
+        if (line.isBlank()) {
+            return Optional.empty();
+        }
         String[] splitLine = line.trim().split(" ");
         return isWordReachable(splitLine, index) ? Optional.of(splitLine[index].trim()) : Optional.empty();
     }
 
     public static Optional<String> extractSeveralValues(@NonNull String line, int... index) {
+        if (line.isBlank()) {
+            return Optional.empty();
+        }
         String result = "";
         String[] splitLine = line.trim().split(" ");
         for (int n : index) {
@@ -59,13 +74,13 @@ public class ProcessLine {
         return Optional.of(result.trim());
     }
 
-    public static String excludeLastValue(@NonNull String line) {
+    public static Optional<String> excludeLastValue(@NonNull String line) {
         String result = "";
         String[] splitLine = line.trim().split(" ");
         for (int i = 0; i < splitLine.length - 1; i++) {
             result = result.concat(splitLine[i].trim()).concat(" ");
         }
-        return result.trim();
+        return result.isBlank() ? Optional.empty() : Optional.of(result.trim());
     }
 
     private static boolean isWordReachable(String[] wordArr, int n) {
