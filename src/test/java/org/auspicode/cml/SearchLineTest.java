@@ -1,17 +1,17 @@
 package org.auspicode.cml;
 
-import org.auspicode.cml.exception.KeywordNotFoundException;
-import org.auspicode.cml.exception.LineOutOfReachException;
 import org.auspicode.cml.exception.OffsetIsZeroException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.auspicode.cml.exception.ErrorMessages.*;
+import static org.auspicode.cml.exception.ErrorMessages.OFFSET_IS_ZERO;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SearchLineTest {
 
@@ -19,36 +19,68 @@ class SearchLineTest {
     void whenSearchWithKeyword_ReturnKeyword() throws IOException {
         String keyword = "Third";
         String testFile = Files.readString(Path.of("src/test/resources/testFile"));
-        String result = SearchLine.withKeyword(testFile, keyword);
+        Optional<String> result = SearchLine.withKeyword(testFile, keyword);
 
-        assertThat(result).contains(keyword);
+        assertTrue(result.isPresent());
+        assertThat(result.get()).contains(keyword);
     }
 
     @Test
-    void whenSearchWithKeywordNotInFile_ReturnKeywordNotFoundException() throws IOException {
+    void whenSearchWithKeywordNotInFile_ReturnEmptyString() throws IOException {
         String keyword = "Eleventh";
         String testFile = Files.readString(Path.of("src/test/resources/testFile"));
-        KeywordNotFoundException keywordNotFoundException = assertThrows(KeywordNotFoundException.class, () -> SearchLine.withKeyword(testFile, keyword));
+        Optional<String> result = SearchLine.withKeyword(testFile, keyword);
 
-        assertThat(keywordNotFoundException.getMessage()).isEqualTo(KEYWORD_NOT_FOUND);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void whenSearchWithKeywordInEmptyFile_ReturnEmptyString() throws IOException {
+        String keyword = "Eleventh";
+        String testFile = Files.readString(Path.of("src/test/resources/emptyTestFile"));
+        Optional<String> result = SearchLine.withKeyword(testFile, keyword);
+
+        assertTrue(result.isEmpty());
     }
 
     @Test
     void whenSearchWithKeywordWithPositiveOffset_ReturnKeyword() throws IOException {
         String keyword = "Third";
         String testFile = Files.readString(Path.of("src/test/resources/testFile"));
-        String result = SearchLine.withOffset(testFile, keyword, 3);
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, 3);
 
-        assertThat(result).isEqualTo("Sixth Line");
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo("Sixth Line");
+    }
+
+    @Test
+    void whenSearchFirstLineWithKeywordWithPositiveOffset_ReturnKeyword() throws IOException {
+        String keyword = "First";
+        String testFile = Files.readString(Path.of("src/test/resources/testFile"));
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, 3);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo("Fourth Line");
     }
 
     @Test
     void whenSearchWithKeywordWithNegativeOffset_ReturnKeyword() throws IOException {
         String keyword = "Ninth";
         String testFile = Files.readString(Path.of("src/test/resources/testFile"));
-        String result = SearchLine.withOffset(testFile, keyword, -3);
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, -3);
 
-        assertThat(result).isEqualTo("Sixth Line");
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo("Sixth Line");
+    }
+
+    @Test
+    void whenSearchLastLineWithKeywordWithNegativeOffset_ReturnKeyword() throws IOException {
+        String keyword = "Tenth";
+        String testFile = Files.readString(Path.of("src/test/resources/testFile"));
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, -9);
+
+        assertTrue(result.isPresent());
+        assertThat(result.get()).isEqualTo("First Line");
     }
 
     @Test
@@ -61,20 +93,29 @@ class SearchLineTest {
     }
 
     @Test
-    void whenSearchWithKeywordNotInFileWithOffset_ReturnKeywordNotFoundException() throws IOException {
+    void whenSearchWithKeywordNotInFileWithOffset_ReturnEmptyString() throws IOException {
         String keyword = "Eleventh";
         String testFile = Files.readString(Path.of("src/test/resources/testFile"));
-        KeywordNotFoundException keywordNotFoundException = assertThrows(KeywordNotFoundException.class, () -> SearchLine.withOffset(testFile, keyword, 1));
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, 1);
 
-        assertThat(keywordNotFoundException.getMessage()).isEqualTo(KEYWORD_NOT_FOUND);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void whenSearchWithKeywordWithOffset_ReturnLineOutOfReachException() throws IOException {
+    void whenSearchWithKeywordWithOffsetOutOfBounds_ReturnEmptyString() throws IOException {
         String keyword = "Tenth";
         String testFile = Files.readString(Path.of("src/test/resources/testFile"));
-        LineOutOfReachException lineOutOfReachException = assertThrows(LineOutOfReachException.class, () -> SearchLine.withOffset(testFile, keyword, 1));
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, 1);
 
-        assertThat(lineOutOfReachException.getMessage()).isEqualTo(LINE_OUT_OF_REACH);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void whenSearchWithKeywordWithOffsetInEmptyFile_ReturnEmptyString() throws IOException {
+        String keyword = "Tenth";
+        String testFile = Files.readString(Path.of("src/test/resources/emptyTestFile"));
+        Optional<String> result = SearchLine.withOffset(testFile, keyword, 1);
+
+        assertTrue(result.isEmpty());
     }
 }
